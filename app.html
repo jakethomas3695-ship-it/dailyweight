@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a0f">
+<title>Daily Tracker</title>
+<link rel="manifest" href="data:application/json;base64,">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a25;
+    --border: #252535;
+    --text: #e8e8f0;
+    --text-dim: #7a7a90;
+    --accent: #4fd1c5;
+    --accent-dim: rgba(79, 209, 197, 0.12);
+    --warning: #f6ad55;
+    --danger: #fc8181;
+    --success: #68d391;
+    --radius: 14px;
+  }
+
+  html, body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    padding: 0 0 100px 0;
+  }
+
+  .container {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* Header */
+  .header {
+    padding: 60px 0 24px;
+    text-align: center;
+  }
+
+  .header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    color: var(--text);
+  }
+
+  .header .date {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Navigation */
+  .nav {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 28px;
+    border: 1px solid var(--border);
+  }
+
+  .nav button {
+    flex: 1;
+    padding: 10px 8px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .nav button.active {
+    background: var(--accent-dim);
+    color: var(--accent);
+  }
+
+  /* Sections */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* Form */
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+
+  .form-group input:focus {
+    border-color: var(--accent);
+  }
+
+  .form-group input::placeholder {
+    color: #3a3a50;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .form-row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+
+  .form-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 24px 0;
+  }
+
+  .form-section-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .form-section-label .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #0a0a0f;
+  }
+
+  .btn-primary:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .btn-danger {
+    background: rgba(252, 129, 129, 0.1);
+    color: var(--danger);
+    border: 1px solid rgba(252, 129, 129, 0.2);
+  }
+
+  .btn-small {
+    padding: 10px 16px;
+    font-size: 13px;
+    width: auto;
+  }
+
+  /* Dashboard */
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 12px;
+  }
+
+  .stat-card .label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .stat-card .value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .stat-card .sub {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stat-card .trend {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 6px;
+  }
+
+  .trend-down { background: rgba(104, 211, 145, 0.12); color: var(--success); }
+  .trend-up { background: rgba(252, 129, 129, 0.12); color: var(--danger); }
+  .trend-neutral { background: rgba(122, 122, 144, 0.12); color: var(--text-dim); }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* Projection cards */
+  .projection-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .projection-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+  }
+
+  .projection-card.five::before { background: var(--accent); }
+  .projection-card.ten::before { background: var(--warning); }
+
+  .projection-card .horizon {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 14px;
+  }
+
+  .projection-card.five .horizon { color: var(--accent); }
+  .projection-card.ten .horizon { color: var(--warning); }
+
+  .projection-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .projection-item .p-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+
+  .projection-item .p-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  /* Chart */
+  .chart-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 12px;
+  }
+
+  .chart-container .chart-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+
+  canvas {
+    width: 100% !important;
+    height: 200px !important;
+  }
+
+  /* History */
+  .history-entry {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 8px;
+  }
+
+  .history-entry .h-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .history-entry .h-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  .history-entry .h-item {
+    font-size: 12px;
+  }
+
+  .history-entry .h-item span {
+    color: var(--text-dim);
+    display: block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+
+  .history-entry .h-item strong {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 13px;
+  }
+
+  /* Data management */
+  .data-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .data-actions .btn {
+    flex: 1;
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-dim);
+  }
+
+  .empty-state .icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+    opacity: 0.4;
+  }
+
+  .empty-state p {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    z-index: 999;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Delete confirmation */
+  .delete-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+
+  .delete-row .btn {
+    width: auto;
+    margin-top: 0;
+  }
+
+  /* Edit overlay */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 100;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .overlay.show {
+    display: flex;
+  }
+
+  .overlay-content {
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    border-radius: 20px 20px 0 0;
+    padding: 24px 20px 40px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 85dvh;
+    overflow-y: auto;
+  }
+
+  .overlay-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .overlay-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .overlay-close {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .goal-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    margin-bottom: 12px;
+  }
+
+  .goal-input-row .form-group {
+    flex: 1;
+    margin-bottom: 0;
+  }
+  .toggle-row {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 3px;
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  .toggle-row button {
+    flex: 1;
+    padding: 10px 8px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .toggle-row button.active {
+    background: var(--accent-dim);
+    color: var(--accent);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>Daily Tracker</h1>
+    <div class="date" id="headerDate"></div>
+  </div>
+
+  <nav class="nav">
+    <button class="active" onclick="showSection('log')">Log</button>
+    <button onclick="showSection('dashboard')">Dashboard</button>
+    <button onclick="showSection('history')">History</button>
+    <button onclick="showSection('settings')">Settings</button>
+  </nav>
+
+  <!-- LOG SECTION -->
+  <div class="section active" id="sec-log">
+    <div class="form-section-label"><span class="dot"></span> Body Measurements</div>
+
+    <div class="form-group">
+      <label>Weight (kg)</label>
+      <input type="number" step="0.1" id="f-weight" placeholder="0.0" inputmode="decimal">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Neck (cm)</label>
+        <input type="number" step="0.1" id="f-neck" placeholder="0.0" inputmode="decimal">
+      </div>
+      <div class="form-group">
+        <label>Waist (cm)</label>
+        <input type="number" step="0.1" id="f-waist" placeholder="0.0" inputmode="decimal">
+      </div>
+    </div>
+
+    <div class="form-group hip-field" id="hipField" style="display:none;">
+      <label>Hip (cm)</label>
+      <input type="number" step="0.1" id="f-hip" placeholder="0.0" inputmode="decimal">
+    </div>
+
+    <div class="form-divider"></div>
+    <div class="form-section-label"><span class="dot"></span> Yesterday's Activity</div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Steps</label>
+        <input type="number" id="f-steps" placeholder="0" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label>Cardio Burned (kcal)</label>
+        <input type="number" id="f-cardio" placeholder="0" inputmode="numeric">
+      </div>
+    </div>
+
+    <div class="form-divider"></div>
+    <div class="form-section-label"><span class="dot"></span> Yesterday's Nutrition</div>
+
+    <div class="form-group">
+      <label>Calories (kcal)</label>
+      <input type="number" id="f-kcal" placeholder="0" inputmode="numeric">
+    </div>
+
+    <div class="form-row-3">
+      <div class="form-group">
+        <label>Carbs (g)</label>
+        <input type="number" id="f-cho" placeholder="0" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label>Protein (g)</label>
+        <input type="number" id="f-pro" placeholder="0" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label>Fat (g)</label>
+        <input type="number" id="f-fat" placeholder="0" inputmode="numeric">
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="saveEntry()" style="margin-top: 20px;">Save Entry</button>
+  </div>
+
+  <!-- DASHBOARD SECTION -->
+  <div class="section" id="sec-dashboard">
+    <div id="dashContent"></div>
+  </div>
+
+  <!-- HISTORY SECTION -->
+  <div class="section" id="sec-history">
+    <div id="historyContent"></div>
+  </div>
+
+  <!-- SETTINGS SECTION -->
+  <div class="section" id="sec-settings">
+    <div class="form-section-label"><span class="dot"></span> Profile</div>
+    <div class="form-group">
+      <label>Sex (for body fat formula)</label>
+      <div class="toggle-row" id="sexToggle">
+        <button onclick="setSex('male'); updateSexToggle();">Male</button>
+        <button onclick="setSex('female'); updateSexToggle();">Female</button>
+      </div>
+    </div>
+
+    <div class="form-section-label"><span class="dot"></span> Goal</div>
+    <div class="goal-input-row">
+      <div class="form-group">
+        <label>Target Weight (kg)</label>
+        <input type="number" step="0.1" id="f-goal-weight" placeholder="75.0" inputmode="decimal">
+      </div>
+      <button class="btn btn-primary btn-small" onclick="saveGoal()">Set</button>
+    </div>
+    <div class="goal-input-row">
+      <div class="form-group">
+        <label>Height (cm)</label>
+        <input type="number" step="0.1" id="f-height" placeholder="171" inputmode="decimal">
+      </div>
+      <button class="btn btn-primary btn-small" onclick="saveHeight()">Set</button>
+    </div>
+
+    <div class="form-divider"></div>
+    <div class="form-section-label"><span class="dot"></span> Data Management</div>
+    <div class="data-actions">
+      <button class="btn btn-secondary btn-small" onclick="exportData()">Export JSON</button>
+      <button class="btn btn-secondary btn-small" onclick="document.getElementById('importFile').click()">Import JSON</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+    <button class="btn btn-danger btn-small" onclick="confirmClear()" id="clearBtn">Clear All Data</button>
+    <div id="clearConfirm" style="display:none; margin-top: 12px;">
+      <p style="font-size: 13px; color: var(--danger); margin-bottom: 10px;">Are you sure? This can't be undone.</p>
+      <div class="data-actions">
+        <button class="btn btn-danger btn-small" onclick="clearAllData()">Yes, delete</button>
+        <button class="btn btn-secondary btn-small" onclick="cancelClear()">Cancel</button>
+      </div>
+    </div>
+
+    <div class="form-divider"></div>
+    <div class="form-section-label"><span class="dot"></span> About</div>
+    <p style="font-size: 13px; color: var(--text-dim); line-height: 1.6;">
+      All data stored locally on this device. Use Export to back up regularly.
+    </p>
+    <p style="font-size: 12px; color: var(--text-dim); line-height: 1.6; margin-top: 12px; font-family: 'JetBrains Mono', monospace;">
+      <strong style="color:var(--text);">Formulae</strong><br><br>
+      <strong>BF% (Navy, Male):</strong><br>
+      495/(1.0324 − 0.19077×log₁₀(waist−neck) + 0.15456×log₁₀(height)) − 450<br><br>
+      <strong>BF% (Navy, Female):</strong><br>
+      495/(1.29579 − 0.35004×log₁₀(waist+hip−neck) + 0.22100×log₁₀(height)) − 450<br><br>
+      <strong>BMR (Katch-McArdle):</strong><br>
+      370 + 21.6 × LBM<br>
+      LBM = weight × (1 − BF%/100)<br><br>
+      <strong>TDEE:</strong><br>
+      (BMR × step_multiplier) + (cardio_kcal × 0.5)<br>
+      Steps &lt;5k=×1.2, 5-7.5k=×1.375, 7.5-10k=×1.55, 10-12.5k=×1.725, 12.5k+=×1.9<br>
+      Cardio discounted 50% to avoid double-count<br><br>
+      <strong>Calibration:</strong><br>
+      factor = actual_Δweight / predicted_Δweight<br>
+      Calibrated TDEE = BMR + (TDEE−BMR) × factor<br>
+      Factor clamped 0.5–1.5<br><br>
+      <strong>Projection:</strong><br>
+      weekly_Δkg = (TDEE − avg_kcal) × 7 / 7700<br>
+      projected = current + weekly_Δkg × weeks<br><br>
+      <strong>Dimension Projection:</strong><br>
+      cm/kg ratio derived from last 4 weeks only<br>
+      (toilet roll effect — ratio changes as you lean out)<br>
+      projected_dim = current + (weight_Δ × cm/kg)<br>
+      Rate clamped: waist ±1.5cm/wk, neck ±0.5cm/wk, hip ±1.5cm/wk<br>
+      Falls back to linear (clamped) if insufficient data for ratio
+    </p>
+  </div>
+</div>
+
+<!-- Edit overlay -->
+<div class="overlay" id="editOverlay">
+  <div class="overlay-content">
+    <div class="overlay-header">
+      <h3 id="editTitle">Edit Entry</h3>
+      <button class="overlay-close" onclick="closeEdit()">✕</button>
+    </div>
+    <div id="editForm"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+// ── State ──
+const STORAGE_KEY = 'dt_entries';
+const GOAL_KEY = 'dt_goal';
+const HEIGHT_KEY = 'dt_height';
+const SEX_KEY = 'dt_sex';
+
+function getEntries() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+
+function setEntries(entries) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+}
+
+function getGoal() {
+  return parseFloat(localStorage.getItem(GOAL_KEY)) || 75;
+}
+
+function getHeight() {
+  return parseFloat(localStorage.getItem(HEIGHT_KEY)) || 171;
+}
+
+function getSex() {
+  return localStorage.getItem(SEX_KEY) || 'male';
+}
+
+function setSex(val) {
+  localStorage.setItem(SEX_KEY, val);
+  toast('Sex updated to ' + val);
+  if (document.getElementById('sec-dashboard').classList.contains('active')) renderDashboard();
+}
+
+function saveHeight() {
+  const v = parseFloat(document.getElementById('f-height').value);
+  if (v > 0) {
+    localStorage.setItem(HEIGHT_KEY, v);
+    toast('Height updated to ' + v + ' cm');
+    if (document.getElementById('sec-dashboard').classList.contains('active')) renderDashboard();
+  }
+}
+
+function saveGoal() {
+  const v = parseFloat(document.getElementById('f-goal-weight').value);
+  if (v > 0) {
+    localStorage.setItem(GOAL_KEY, v);
+    toast('Goal updated to ' + v + ' kg');
+  }
+}
+
+// ── Helpers ──
+function today() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function formatDate(d) {
+  const dt = new Date(d + 'T00:00:00');
+  return dt.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function navyBF(weight, waist, neck, hip) {
+  if (!weight || !waist || !neck || waist <= neck) return null;
+  const height = getHeight();
+  const sex = getSex();
+
+  if (sex === 'male') {
+    // US Navy Male: 495 / (1.0324 - 0.19077 * log10(waist - neck) + 0.15456 * log10(height)) - 450
+    const bf = 495 / (1.0324 - 0.19077 * Math.log10(waist - neck) + 0.15456 * Math.log10(height)) - 450;
+    return Math.max(0, Math.min(60, bf));
+  } else {
+    // US Navy Female: 495 / (1.29579 - 0.35004 * log10(waist + hip - neck) + 0.22100 * log10(height)) - 450
+    if (!hip) return null;
+    const bf = 495 / (1.29579 - 0.35004 * Math.log10(waist + hip - neck) + 0.22100 * Math.log10(height)) - 450;
+    return Math.max(0, Math.min(60, bf));
+  }
+}
+
+function updateSexToggle() {
+  const sex = getSex();
+  const btns = document.getElementById('sexToggle').querySelectorAll('button');
+  btns[0].classList.toggle('active', sex === 'male');
+  btns[1].classList.toggle('active', sex === 'female');
+
+  // Show/hide hip field
+  const hipField = document.getElementById('hipField');
+  if (hipField) hipField.style.display = sex === 'female' ? 'block' : 'none';
+}
+
+// ── Navigation ──
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav button').forEach(b => {
+    if (b.textContent.toLowerCase() === id || 
+        (id === 'log' && b.textContent === 'Log') ||
+        (id === 'dashboard' && b.textContent === 'Dashboard') ||
+        (id === 'history' && b.textContent === 'History') ||
+        (id === 'settings' && b.textContent === 'Settings')) {
+      b.classList.add('active');
+    }
+  });
+
+  if (id === 'dashboard') renderDashboard();
+  if (id === 'history') renderHistory();
+  if (id === 'settings') {
+    document.getElementById('f-goal-weight').value = getGoal();
+    document.getElementById('f-height').value = getHeight();
+    updateSexToggle();
+  }
+}
+
+// ── Save Entry ──
+function saveEntry() {
+  const entry = {
+    date: today(),
+    weight: parseFloat(document.getElementById('f-weight').value) || null,
+    neck: parseFloat(document.getElementById('f-neck').value) || null,
+    waist: parseFloat(document.getElementById('f-waist').value) || null,
+    hip: parseFloat(document.getElementById('f-hip').value) || null,
+    steps: parseInt(document.getElementById('f-steps').value) || null,
+    cardio: parseInt(document.getElementById('f-cardio').value) || null,
+    kcal: parseInt(document.getElementById('f-kcal').value) || null,
+    cho: parseInt(document.getElementById('f-cho').value) || null,
+    pro: parseInt(document.getElementById('f-pro').value) || null,
+    fat: parseInt(document.getElementById('f-fat').value) || null,
+  };
+
+  if (!entry.weight && !entry.kcal) {
+    toast('Enter at least weight or calories');
+    return;
+  }
+
+  let entries = getEntries();
+  const idx = entries.findIndex(e => e.date === entry.date);
+  if (idx >= 0) {
+    entries[idx] = entry;
+    toast('Entry updated');
+  } else {
+    entries.push(entry);
+    toast('Entry saved');
+  }
+
+  entries.sort((a, b) => a.date.localeCompare(b.date));
+  setEntries(entries);
+
+  // Clear form
+  ['f-weight','f-neck','f-waist','f-hip','f-steps','f-cardio','f-kcal','f-cho','f-pro','f-fat'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+
+  // Pre-fill if entry exists for today on next load
+  prefillToday();
+}
+
+function prefillToday() {
+  const entries = getEntries();
+  const todayEntry = entries.find(e => e.date === today());
+  if (todayEntry) {
+    if (todayEntry.weight) document.getElementById('f-weight').value = todayEntry.weight;
+    if (todayEntry.neck) document.getElementById('f-neck').value = todayEntry.neck;
+    if (todayEntry.waist) document.getElementById('f-waist').value = todayEntry.waist;
+    if (todayEntry.hip) document.getElementById('f-hip').value = todayEntry.hip;
+    if (todayEntry.steps) document.getElementById('f-steps').value = todayEntry.steps;
+    if (todayEntry.cardio) document.getElementById('f-cardio').value = todayEntry.cardio;
+    if (todayEntry.kcal) document.getElementById('f-kcal').value = todayEntry.kcal;
+    if (todayEntry.cho) document.getElementById('f-cho').value = todayEntry.cho;
+    if (todayEntry.pro) document.getElementById('f-pro').value = todayEntry.pro;
+    if (todayEntry.fat) document.getElementById('f-fat').value = todayEntry.fat;
+  }
+}
+
+// ── Statistics & Projections ──
+function weeklyAvg(entries, field) {
+  const vals = entries.filter(e => e[field] != null).map(e => e[field]);
+  if (vals.length === 0) return null;
+  return vals.reduce((a, b) => a + b, 0) / vals.length;
+}
+
+function getRecentWeeks(entries, numDays) {
+  if (entries.length === 0) return [];
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - numDays);
+  const cutStr = cutoff.toISOString().split('T')[0];
+  return entries.filter(e => e.date >= cutStr);
+}
+
+function getWeeklyAverages(entries) {
+  const weeks = {};
+  entries.forEach(e => {
+    const d = new Date(e.date + 'T00:00:00');
+    const yr = d.getFullYear();
+    const jan1 = new Date(yr, 0, 1);
+    const wk = Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+    const key = yr + '-W' + String(wk).padStart(2, '0');
+    if (!weeks[key]) weeks[key] = [];
+    weeks[key].push(e);
+  });
+
+  return Object.entries(weeks).sort((a, b) => a[0].localeCompare(b[0])).map(([wk, ents]) => ({
+    week: wk,
+    weight: weeklyAvg(ents, 'weight'),
+    waist: weeklyAvg(ents, 'waist'),
+    neck: weeklyAvg(ents, 'neck'),
+    hip: weeklyAvg(ents, 'hip'),
+    steps: weeklyAvg(ents, 'steps'),
+    cardio: weeklyAvg(ents, 'cardio'),
+    kcal: weeklyAvg(ents, 'kcal'),
+    pro: weeklyAvg(ents, 'pro'),
+    cho: weeklyAvg(ents, 'cho'),
+    fat: weeklyAvg(ents, 'fat'),
+    count: ents.length
+  }));
+}
+
+// ── TDEE Engine ──
+const KCAL_PER_KG = 7700;
+const CARDIO_DISCOUNT = 0.5;
+
+function stepMultiplier(avgSteps) {
+  if (avgSteps == null) return 1.375; // default light if no data
+  if (avgSteps < 5000) return 1.2;
+  if (avgSteps < 7500) return 1.375;
+  if (avgSteps < 10000) return 1.55;
+  if (avgSteps < 12500) return 1.725;
+  return 1.9;
+}
+
+function stepBandLabel(avgSteps) {
+  if (avgSteps == null) return 'Unknown';
+  if (avgSteps < 5000) return 'Sedentary';
+  if (avgSteps < 7500) return 'Light';
+  if (avgSteps < 10000) return 'Moderate';
+  if (avgSteps < 12500) return 'Active';
+  return 'Very Active';
+}
+
+function calcBMR(weight, bf) {
+  // Katch-McArdle: 370 + 21.6 * LBM
+  if (!weight || bf == null) return null;
+  const lbm = weight * (1 - bf / 100);
+  return 370 + (21.6 * lbm);
+}
+
+function calcRawTDEE(bmr, avgSteps, avgCardio) {
+  if (!bmr) return null;
+  const mult = stepMultiplier(avgSteps);
+  const cardioAdd = (avgCardio || 0) * CARDIO_DISCOUNT;
+  return (bmr * mult) + cardioAdd;
+}
+
+function calcCalibration(entries) {
+  // Need at least 14 days of data to calibrate
+  // Compare predicted vs actual weight change over last 14 days
+  const recent14 = getRecentWeeks(entries, 14);
+  if (recent14.length < 7) return { factor: 1.0, hasCalibration: false };
+
+  // Get first and last week averages within the 14-day window
+  const sorted = recent14.slice().sort((a, b) => a.date.localeCompare(b.date));
+  const midpoint = Math.floor(sorted.length / 2);
+  const firstHalf = sorted.slice(0, midpoint);
+  const secondHalf = sorted.slice(midpoint);
+
+  const w1 = weeklyAvg(firstHalf, 'weight');
+  const w2 = weeklyAvg(secondHalf, 'weight');
+  if (!w1 || !w2) return { factor: 1.0, hasCalibration: false };
+
+  const actualChange = w2 - w1; // kg lost/gained
+
+  // Calculate what the model predicted should have happened
+  const avgWeight = weeklyAvg(recent14, 'weight');
+  const avgBF = (() => {
+    const bfs = recent14.map(e => navyBF(e.weight, e.waist, e.neck, e.hip || null)).filter(x => x != null);
+    return bfs.length > 0 ? bfs.reduce((a, b) => a + b, 0) / bfs.length : null;
+  })();
+  const avgSteps = weeklyAvg(recent14, 'steps');
+  const avgCardio = weeklyAvg(recent14, 'cardio');
+  const avgKcal = weeklyAvg(recent14, 'kcal');
+
+  const bmr = calcBMR(avgWeight, avgBF);
+  const rawTDEE = calcRawTDEE(bmr, avgSteps, avgCardio);
+  if (!rawTDEE || !avgKcal) return { factor: 1.0, hasCalibration: false };
+
+  const dailyDeficit = rawTDEE - avgKcal;
+  // Time span between midpoints of each half (roughly 7 days)
+  const daySpan = (() => {
+    const d1 = new Date(firstHalf[Math.floor(firstHalf.length / 2)].date + 'T00:00:00');
+    const d2 = new Date(secondHalf[Math.floor(secondHalf.length / 2)].date + 'T00:00:00');
+    return Math.max(1, (d2 - d1) / 86400000);
+  })();
+
+  const predictedChange = -(dailyDeficit * daySpan) / KCAL_PER_KG;
+
+  if (Math.abs(predictedChange) < 0.05) return { factor: 1.0, hasCalibration: false };
+
+  // calibration = how much to adjust the activity portion of TDEE
+  // actual/predicted gives us the correction
+  let factor = actualChange / predictedChange;
+  // Clamp to 0.5–1.5
+  factor = Math.max(0.5, Math.min(1.5, factor));
+
+  return {
+    factor,
+    hasCalibration: true,
+    actualChange,
+    predictedChange,
+    daySpan
+  };
+}
+
+function calcCalibratedTDEE(bmr, avgSteps, avgCardio, calibration) {
+  const rawTDEE = calcRawTDEE(bmr, avgSteps, avgCardio);
+  if (!rawTDEE || !bmr) return rawTDEE;
+  // Apply calibration to the activity portion only (TDEE - BMR)
+  const activityPortion = rawTDEE - bmr;
+  return bmr + (activityPortion * calibration.factor);
+}
+
+function calcProjection(entries, weeksAhead) {
+  const recent14 = getRecentWeeks(entries, 14);
+  if (recent14.length < 5) return null;
+
+  const latest = entries[entries.length - 1];
+  const currentWeight = latest.weight;
+  if (!currentWeight) return null;
+
+  const currentBF = navyBF(latest.weight, latest.waist, latest.neck, latest.hip || null);
+  const avgSteps = weeklyAvg(recent14, 'steps');
+  const avgCardio = weeklyAvg(recent14, 'cardio');
+  const avgKcal = weeklyAvg(recent14, 'kcal');
+
+  const bmr = calcBMR(currentWeight, currentBF);
+  if (!bmr || !avgKcal) return null;
+
+  const calibration = calcCalibration(entries);
+  const tdee = calcCalibratedTDEE(bmr, avgSteps, avgCardio, calibration);
+  if (!tdee) return null;
+
+  const dailyDeficit = tdee - avgKcal;
+  const weeklyWeightChange = -(dailyDeficit * 7) / KCAL_PER_KG;
+  const projectedWeight = currentWeight + (weeklyWeightChange * weeksAhead);
+
+  // ── Dimension projection: proportional to weight change ──
+  // Derive cm-per-kg ratios from historical data, then apply to projected weight delta
+  // Rate-clamped to physiological maximums per week
+  const MAX_WAIST_CM_PER_WEEK = 1.5;
+  const MAX_NECK_CM_PER_WEEK = 0.5;
+  const MAX_HIP_CM_PER_WEEK = 1.5;
+
+  const weeklyAvgs = getWeeklyAverages(entries);
+  let projWaist = null, projNeck = null, projHip = null;
+  let dimMethod = 'none';
+
+  // Try to derive cm/kg ratios from all available weekly data
+  // Try to derive cm/kg ratios from recent 4 weeks (toilet roll effect - 
+  // ratios change as you get leaner, older data is misleading)
+  const recent28 = getRecentWeeks(entries, 28);
+  const recentWeeklyAvgs = getWeeklyAverages(recent28);
+
+  function calcCmPerKg(field) {
+    const pairs = recentWeeklyAvgs
+      .filter(w => w.weight != null && w[field] != null)
+      .map(w => ({ weight: w.weight, dim: w[field] }));
+    if (pairs.length < 2) return null;
+
+    const first = pairs[0];
+    const last = pairs[pairs.length - 1];
+    const weightDelta = last.weight - first.weight;
+    const dimDelta = last.dim - first.dim;
+
+    if (Math.abs(weightDelta) < 0.1) return null;
+    return dimDelta / weightDelta;
+  }
+
+  function clampWeeklyRate(currentVal, projectedVal, maxPerWeek, weeks) {
+    if (currentVal == null || projectedVal == null || weeks <= 0) return projectedVal;
+    const totalChange = projectedVal - currentVal;
+    const weeklyRate = totalChange / weeks;
+    const clampedRate = Math.max(-maxPerWeek, Math.min(maxPerWeek, weeklyRate));
+    return currentVal + (clampedRate * weeks);
+  }
+
+  const totalWeightDelta = projectedWeight - currentWeight;
+
+  // Waist
+  const waistRatio = calcCmPerKg('waist');
+  if (waistRatio != null && latest.waist) {
+    projWaist = latest.waist + (totalWeightDelta * waistRatio);
+    projWaist = clampWeeklyRate(latest.waist, projWaist, MAX_WAIST_CM_PER_WEEK, weeksAhead);
+    dimMethod = 'ratio';
+  } else if (weeklyAvgs.length >= 2) {
+    // Fallback: linear from last 2 weeks, but still clamped
+    const r = weeklyAvgs.slice(-2);
+    if (r[0].waist != null && r[1].waist != null && latest.waist) {
+      projWaist = r[1].waist + (r[1].waist - r[0].waist) * weeksAhead;
+      projWaist = clampWeeklyRate(latest.waist, projWaist, MAX_WAIST_CM_PER_WEEK, weeksAhead);
+      dimMethod = 'linear (clamped)';
+    }
+  }
+
+  // Neck
+  const neckRatio = calcCmPerKg('neck');
+  if (neckRatio != null && latest.neck) {
+    projNeck = latest.neck + (totalWeightDelta * neckRatio);
+    projNeck = clampWeeklyRate(latest.neck, projNeck, MAX_NECK_CM_PER_WEEK, weeksAhead);
+  } else if (weeklyAvgs.length >= 2) {
+    const r = weeklyAvgs.slice(-2);
+    if (r[0].neck != null && r[1].neck != null && latest.neck) {
+      projNeck = r[1].neck + (r[1].neck - r[0].neck) * weeksAhead;
+      projNeck = clampWeeklyRate(latest.neck, projNeck, MAX_NECK_CM_PER_WEEK, weeksAhead);
+    }
+  }
+
+  // Hip
+  const hipRatio = calcCmPerKg('hip');
+  if (hipRatio != null && latest.hip) {
+    projHip = latest.hip + (totalWeightDelta * hipRatio);
+    projHip = clampWeeklyRate(latest.hip, projHip, MAX_HIP_CM_PER_WEEK, weeksAhead);
+  } else if (weeklyAvgs.length >= 2) {
+    const r = weeklyAvgs.slice(-2);
+    if (r[0].hip != null && r[1].hip != null && latest.hip) {
+      projHip = r[1].hip + (r[1].hip - r[0].hip) * weeksAhead;
+      projHip = clampWeeklyRate(latest.hip, projHip, MAX_HIP_CM_PER_WEEK, weeksAhead);
+    }
+  }
+
+  const projBF = navyBF(projectedWeight, projWaist, projNeck, projHip);
+
+  return {
+    weight: projectedWeight,
+    waist: projWaist,
+    neck: projNeck,
+    hip: projHip,
+    bf: projBF,
+    bmr,
+    tdee,
+    rawTDEE: calcRawTDEE(bmr, avgSteps, avgCardio),
+    avgKcal,
+    dailyDeficit,
+    weeklyWeightChange,
+    calibration,
+    avgSteps,
+    avgCardio,
+    currentBF,
+    dimMethod,
+    waistRatio,
+    neckRatio,
+    hipRatio
+  };
+}
+
+// ── Dashboard ──
+let weightChart = null;
+
+function renderDashboard() {
+  const entries = getEntries();
+  const container = document.getElementById('dashContent');
+
+  if (entries.length < 3) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">📊</div>
+        <p>Log at least 3 days of data to see your dashboard and projections.</p>
+        <p style="margin-top:8px; font-family: 'JetBrains Mono', monospace; font-size: 12px;">${entries.length}/3 entries</p>
+      </div>`;
+    return;
+  }
+
+  const recent14 = getRecentWeeks(entries, 14);
+  const latest = entries[entries.length - 1];
+  const goal = getGoal();
+
+  // Current stats
+  const currentBF = navyBF(latest.weight, latest.waist, latest.neck, latest.hip || null);
+  const avgKcal = weeklyAvg(recent14, 'kcal');
+  const avgSteps = weeklyAvg(recent14, 'steps');
+  const avgPro = weeklyAvg(recent14, 'pro');
+
+  // TDEE-based projections
+  const proj5 = calcProjection(entries, 5);
+  const proj10 = calcProjection(entries, 10);
+
+  // Use projection data for weekly rate and weeks to goal
+  let weeklyWeightChange = null;
+  let weeksToGoal = null;
+  if (proj5) {
+    weeklyWeightChange = proj5.weeklyWeightChange;
+    if (weeklyWeightChange < 0 && latest.weight > goal) {
+      weeksToGoal = Math.ceil((latest.weight - goal) / Math.abs(weeklyWeightChange));
+    }
+  }
+
+  // Build HTML
+  let html = '';
+
+  // Current weight card
+  html += `<div class="stat-card">
+    <div class="label">Current Weight</div>
+    <div class="value">${latest.weight ? latest.weight.toFixed(1) : '—'} <span style="font-size:16px;color:var(--text-dim)">kg</span></div>
+    ${weeklyWeightChange !== null ? `
+      <div class="trend ${weeklyWeightChange < 0 ? 'trend-down' : weeklyWeightChange > 0 ? 'trend-up' : 'trend-neutral'}">
+        ${weeklyWeightChange > 0 ? '+' : ''}${weeklyWeightChange.toFixed(2)} kg/wk (projected)
+      </div>` : ''}
+    ${latest.weight ? `<div class="sub">${(latest.weight - goal).toFixed(1)} kg from goal` +
+      (weeksToGoal ? ` · ~${weeksToGoal} weeks` : '') + `</div>` : ''}
+  </div>`;
+
+  // Stat row - BF & Calories
+  html += `<div class="stat-row">
+    <div class="stat-card">
+      <div class="label">Body Fat (Navy)</div>
+      <div class="value">${currentBF !== null ? currentBF.toFixed(1) + '%' : '—'}</div>
+      <div class="sub">${getHeight()} cm · ${getSex()}</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Avg Calories</div>
+      <div class="value">${avgKcal ? Math.round(avgKcal).toLocaleString() : '—'}</div>
+      <div class="sub">14-day avg</div>
+    </div>
+  </div>`;
+
+  html += `<div class="stat-row">
+    <div class="stat-card">
+      <div class="label">Avg Steps</div>
+      <div class="value">${avgSteps ? Math.round(avgSteps).toLocaleString() : '—'}</div>
+      <div class="sub">${avgSteps ? stepBandLabel(avgSteps) : ''}</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Avg Protein</div>
+      <div class="value">${avgPro ? Math.round(avgPro) + 'g' : '—'}</div>
+    </div>
+  </div>`;
+
+  // TDEE Engine card
+  if (proj5) {
+    const cal = proj5.calibration;
+    html += `<div class="stat-card">
+      <div class="label">TDEE Engine</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:4px;">
+        <div>
+          <div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;">BMR</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:500;">${Math.round(proj5.bmr)}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;">TDEE${cal.hasCalibration ? ' (cal.)' : ''}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:500;">${Math.round(proj5.tdee)}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;">Daily Deficit</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:500;color:${proj5.dailyDeficit > 0 ? 'var(--success)' : 'var(--danger)'};">${Math.round(proj5.dailyDeficit)}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;">Activity Band</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:500;">×${stepMultiplier(proj5.avgSteps).toFixed(3)}</div>
+        </div>
+      </div>
+      ${cal.hasCalibration ? `<div class="sub" style="margin-top:10px;">Calibration: ×${cal.factor.toFixed(2)} · model ${cal.predictedChange < 0 ? 'predicted' : 'predicted'} ${Math.abs(cal.predictedChange).toFixed(2)}kg, actual ${Math.abs(cal.actualChange).toFixed(2)}kg over ${Math.round(cal.daySpan)}d</div>` : 
+      `<div class="sub" style="margin-top:10px;">Uncalibrated · need 14+ days for self-correction</div>`}
+    </div>`;
+  }
+
+  // Weight chart
+  html += `<div class="chart-container">
+    <div class="chart-title">Weight Trend + Projection</div>
+    <canvas id="weightCanvas"></canvas>
+  </div>`;
+
+  // Projection cards
+  if (proj5) {
+    const dt5 = new Date(); dt5.setDate(dt5.getDate() + 35);
+    html += `<div class="projection-card five">
+      <div class="horizon">5-Week Projection · ${dt5.toLocaleDateString('en-GB', {day:'numeric',month:'short'})}</div>
+      <div class="projection-grid">
+        <div class="projection-item">
+          <div class="p-label">Weight</div>
+          <div class="p-value">${proj5.weight ? proj5.weight.toFixed(1) + ' kg' : '—'}</div>
+        </div>
+        <div class="projection-item">
+          <div class="p-label">Body Fat</div>
+          <div class="p-value">${proj5.bf ? proj5.bf.toFixed(1) + '%' : '—'}</div>
+        </div>
+        <div class="projection-item">
+          <div class="p-label">Waist</div>
+          <div class="p-value">${proj5.waist ? proj5.waist.toFixed(1) + ' cm' : '—'}</div>
+        </div>
+        <div class="projection-item">
+          <div class="p-label">Total Lost</div>
+          <div class="p-value">${proj5.weight && latest.weight ? Math.abs(latest.weight - proj5.weight).toFixed(1) + ' kg' : '—'}</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  if (proj10) {
+    const dt10 = new Date(); dt10.setDate(dt10.getDate() + 70);
+    html += `<div class="projection-card ten">
+      <div class="horizon">10-Week Projection · ${dt10.toLocaleDateString('en-GB', {day:'numeric',month:'short'})}</div>
+      <div class="projection-grid">
+        <div class="projection-item">
+          <div class="p-label">Weight</div>
+          <div class="p-value">${proj10.weight ? proj10.weight.toFixed(1) + ' kg' : '—'}</div>
+        </div>
+        <div class="projection-item">
+          <div class="p-label">Body Fat</div>
+          <div class="p-value">${proj10.bf ? proj10.bf.toFixed(1) + '%' : '—'}</div>
+        </div>
+        <div class="projection-item">
+          <div class="p-label">Waist</div>
+          <div class="p-value">${proj10.waist ? proj10.waist.toFixed(1) + ' cm' : '—'}</div>
+        </div>
+        <div class="projection-item">
+          <div class="p-label">Total Lost</div>
+          <div class="p-value">${proj10.weight && latest.weight ? Math.abs(latest.weight - proj10.weight).toFixed(1) + ' kg' : '—'}</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  if (!proj5) {
+    html += `<div class="empty-state" style="padding:24px">
+      <p>Need more data for TDEE-based projections. Keep logging weight, calories, and steps daily.</p>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+  renderWeightChart(entries, proj5, proj10);
+}
+
+function renderWeightChart(entries, proj5, proj10) {
+  const canvas = document.getElementById('weightCanvas');
+  if (!canvas) return;
+
+  if (weightChart) weightChart.destroy();
+
+  const weightEntries = entries.filter(e => e.weight != null);
+  const labels = weightEntries.map(e => {
+    const d = new Date(e.date + 'T00:00:00');
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  });
+  const data = weightEntries.map(e => e.weight);
+  const goal = getGoal();
+
+  // Add projection points
+  const projLabels = [...labels];
+  const projData = [...data].map(() => null);
+  const actualData = [...data];
+
+  if (proj5 && proj5.weight) {
+    const dt5 = new Date(); dt5.setDate(dt5.getDate() + 35);
+    projLabels.push(dt5.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }));
+    projData.push(proj5.weight);
+    actualData.push(null);
+
+    // Connect line from last actual to projection
+    projData[projData.length - 2] = data[data.length - 1];
+  }
+
+  if (proj10 && proj10.weight) {
+    const dt10 = new Date(); dt10.setDate(dt10.getDate() + 70);
+    projLabels.push(dt10.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }));
+    projData.push(proj10.weight);
+    actualData.push(null);
+  }
+
+  const goalLine = projLabels.map(() => goal);
+
+  weightChart = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: projLabels,
+      datasets: [
+        {
+          label: 'Actual',
+          data: actualData,
+          borderColor: '#4fd1c5',
+          backgroundColor: 'rgba(79, 209, 197, 0.1)',
+          borderWidth: 2,
+          pointRadius: 2,
+          pointBackgroundColor: '#4fd1c5',
+          tension: 0.3,
+          fill: false,
+          spanGaps: false,
+        },
+        {
+          label: 'Projected',
+          data: projData,
+          borderColor: 'rgba(246, 173, 85, 0.7)',
+          borderWidth: 2,
+          borderDash: [6, 4],
+          pointRadius: 4,
+          pointBackgroundColor: '#f6ad55',
+          tension: 0,
+          fill: false,
+          spanGaps: false,
+        },
+        {
+          label: 'Goal',
+          data: goalLine,
+          borderColor: 'rgba(104, 211, 145, 0.3)',
+          borderWidth: 1,
+          borderDash: [4, 4],
+          pointRadius: 0,
+          fill: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1a1a25',
+          borderColor: '#252535',
+          borderWidth: 1,
+          titleFont: { family: 'JetBrains Mono', size: 11 },
+          bodyFont: { family: 'JetBrains Mono', size: 12 },
+          padding: 10,
+          cornerRadius: 8,
+          callbacks: {
+            label: ctx => ctx.raw ? ctx.dataset.label + ': ' + ctx.raw.toFixed(1) + ' kg' : ''
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(37,37,53,0.5)' },
+          ticks: { color: '#7a7a90', font: { family: 'JetBrains Mono', size: 10 }, maxRotation: 45 }
+        },
+        y: {
+          grid: { color: 'rgba(37,37,53,0.5)' },
+          ticks: {
+            color: '#7a7a90',
+            font: { family: 'JetBrains Mono', size: 10 },
+            callback: v => v + ' kg'
+          }
+        }
+      }
+    }
+  });
+}
+
+// ── History ──
+function renderHistory() {
+  const entries = getEntries().slice().reverse();
+  const container = document.getElementById('historyContent');
+
+  if (entries.length === 0) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="icon">📝</div>
+      <p>No entries yet. Start logging from the Log tab.</p>
+    </div>`;
+    return;
+  }
+
+  let html = '';
+  entries.forEach(e => {
+    const bf = navyBF(e.weight, e.waist, e.neck, e.hip || null);
+    html += `<div class="history-entry" onclick="editEntry('${e.date}')">
+      <div class="h-date">${formatDate(e.date)}</div>
+      <div class="h-grid">
+        <div class="h-item"><span>Weight</span><strong>${e.weight ? e.weight.toFixed(1) : '—'}</strong></div>
+        <div class="h-item"><span>Waist</span><strong>${e.waist ? e.waist.toFixed(1) : '—'}</strong></div>
+        <div class="h-item"><span>BF%</span><strong>${bf ? bf.toFixed(1) : '—'}</strong></div>
+        <div class="h-item"><span>Steps</span><strong>${e.steps ? e.steps.toLocaleString() : '—'}</strong></div>
+        <div class="h-item"><span>Kcal</span><strong>${e.kcal || '—'}</strong></div>
+        <div class="h-item"><span>Protein</span><strong>${e.pro ? e.pro + 'g' : '—'}</strong></div>
+      </div>
+    </div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+// ── Edit Entry ──
+function editEntry(date) {
+  const entries = getEntries();
+  const entry = entries.find(e => e.date === date);
+  if (!entry) return;
+
+  document.getElementById('editTitle').textContent = 'Edit · ' + formatDate(date);
+
+  const fields = [
+    { id: 'weight', label: 'Weight (kg)', step: '0.1', mode: 'decimal' },
+    { id: 'neck', label: 'Neck (cm)', step: '0.1', mode: 'decimal' },
+    { id: 'waist', label: 'Waist (cm)', step: '0.1', mode: 'decimal' },
+    { id: 'hip', label: 'Hip (cm)', step: '0.1', mode: 'decimal' },
+    { id: 'steps', label: 'Steps', step: '1', mode: 'numeric' },
+    { id: 'cardio', label: 'Cardio (kcal)', step: '1', mode: 'numeric' },
+    { id: 'kcal', label: 'Calories', step: '1', mode: 'numeric' },
+    { id: 'cho', label: 'Carbs (g)', step: '1', mode: 'numeric' },
+    { id: 'pro', label: 'Protein (g)', step: '1', mode: 'numeric' },
+    { id: 'fat', label: 'Fat (g)', step: '1', mode: 'numeric' },
+  ];
+
+  let html = '';
+  fields.forEach(f => {
+    html += `<div class="form-group">
+      <label>${f.label}</label>
+      <input type="number" step="${f.step}" id="edit-${f.id}" value="${entry[f.id] || ''}" inputmode="${f.mode}">
+    </div>`;
+  });
+
+  html += `<button class="btn btn-primary" onclick="saveEdit('${date}')">Save Changes</button>`;
+  html += `<button class="btn btn-danger" style="margin-top:8px" onclick="deleteEntry('${date}')">Delete Entry</button>`;
+
+  document.getElementById('editForm').innerHTML = html;
+  document.getElementById('editOverlay').classList.add('show');
+}
+
+function closeEdit() {
+  document.getElementById('editOverlay').classList.remove('show');
+}
+
+function saveEdit(date) {
+  let entries = getEntries();
+  const idx = entries.findIndex(e => e.date === date);
+  if (idx < 0) return;
+
+  entries[idx] = {
+    date,
+    weight: parseFloat(document.getElementById('edit-weight').value) || null,
+    neck: parseFloat(document.getElementById('edit-neck').value) || null,
+    waist: parseFloat(document.getElementById('edit-waist').value) || null,
+    hip: parseFloat(document.getElementById('edit-hip').value) || null,
+    steps: parseInt(document.getElementById('edit-steps').value) || null,
+    cardio: parseInt(document.getElementById('edit-cardio').value) || null,
+    kcal: parseInt(document.getElementById('edit-kcal').value) || null,
+    cho: parseInt(document.getElementById('edit-cho').value) || null,
+    pro: parseInt(document.getElementById('edit-pro').value) || null,
+    fat: parseInt(document.getElementById('edit-fat').value) || null,
+  };
+
+  setEntries(entries);
+  closeEdit();
+  renderHistory();
+  toast('Entry updated');
+}
+
+function deleteEntry(date) {
+  let entries = getEntries().filter(e => e.date !== date);
+  setEntries(entries);
+  closeEdit();
+  renderHistory();
+  toast('Entry deleted');
+}
+
+// ── Import / Export ──
+function exportData() {
+  const data = {
+    entries: getEntries(),
+    goal: getGoal(),
+    height: getHeight(),
+    sex: getSex(),
+    exported: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'tracker-backup-' + today() + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Data exported');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.entries && Array.isArray(data.entries)) {
+        // Merge with existing - imported entries overwrite same-date entries
+        let existing = getEntries();
+        const existingMap = {};
+        existing.forEach(ent => existingMap[ent.date] = ent);
+        data.entries.forEach(ent => existingMap[ent.date] = ent);
+        const merged = Object.values(existingMap).sort((a, b) => a.date.localeCompare(b.date));
+        setEntries(merged);
+
+        if (data.goal) localStorage.setItem(GOAL_KEY, data.goal);
+        if (data.height) localStorage.setItem(HEIGHT_KEY, data.height);
+        if (data.sex) localStorage.setItem(SEX_KEY, data.sex);
+
+        toast('Imported ' + data.entries.length + ' entries');
+        renderHistory();
+      } else {
+        toast('Invalid file format');
+      }
+    } catch {
+      toast('Error reading file');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function confirmClear() {
+  document.getElementById('clearConfirm').style.display = 'block';
+  document.getElementById('clearBtn').style.display = 'none';
+}
+
+function cancelClear() {
+  document.getElementById('clearConfirm').style.display = 'none';
+  document.getElementById('clearBtn').style.display = 'block';
+}
+
+function clearAllData() {
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(GOAL_KEY);
+  localStorage.removeItem(HEIGHT_KEY);
+  localStorage.removeItem(SEX_KEY);
+  cancelClear();
+  toast('All data cleared');
+}
+
+// ── Init ──
+document.getElementById('headerDate').textContent = new Date().toLocaleDateString('en-GB', {
+  weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+});
+
+prefillToday();
+updateSexToggle();
+</script>
+</body>
+</html>
